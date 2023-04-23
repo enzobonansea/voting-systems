@@ -1,5 +1,6 @@
 using Election.Interfaces;
 using Election.Objects;
+using Election.Objects.Exceptions;
 
 namespace Election.Tests;
 
@@ -39,5 +40,20 @@ public class SimpleElectionTest
         election.CountVotes();
         
         Assert.Equal(candidateOne, election.Winner);
+    }
+
+    [Fact]
+    public void PeopleCannotVoteMoreThanOnce()
+    {
+        var voterOne = new SimpleVoter(1, "Voter one");
+        var candidateOne = new SimpleCandidate(1, "Candidate one");
+        var invalidBallots = new List<SimpleBallot>
+        {
+            new SimpleBallot(new SimpleVote(voterOne, candidateOne)),
+            new SimpleBallot(new SimpleVote(voterOne, candidateOne)),
+        };
+        var candidates = new List<ICandidate>() { candidateOne };
+        
+        Assert.Throws<PeopleCannotVoteMoreThanOnce>(() => new SimpleElection(invalidBallots, candidates));
     }
 }

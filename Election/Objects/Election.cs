@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-
+using System.Linq;
 using Election.Interfaces;
 
 namespace Election.Objects
@@ -34,7 +34,16 @@ namespace Election.Objects
 
         public override void CountVotes()
         {
-            throw new NotImplementedException();
+            var votesPerCandidate =  this.Candidates.ToDictionary(candidate => candidate.Id, _ => 0);
+
+            foreach (var ballot in Ballots.SelectMany(ballot => ballot.Votes))
+            {
+                votesPerCandidate[ballot.Candidate.Id] += 1;
+            }
+            
+            var winnerId = votesPerCandidate.OrderByDescending(votes => votes.Value).First().Key;
+
+            this.Winner = this.Candidates.First(candidate => candidate.Id == winnerId);
         }
     }
 

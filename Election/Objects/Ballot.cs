@@ -8,6 +8,7 @@ namespace Election.Objects
     {
         public IEnumerable<SimpleVote> Votes => _votes;
         private List<SimpleVote> _votes;
+        
         public SimpleBallot(SimpleVote vote) { _votes = new List<SimpleVote>() { vote }; }
     }
 

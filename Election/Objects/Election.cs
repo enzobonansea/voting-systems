@@ -24,8 +24,13 @@ namespace Election.Objects
     {
         public const string ItMustHaveBallotsErrorMessage = "Simple election must have ballots";
         public const string ItMustHaveCandidatesErrorMessage = "Simple election must have candidates";
-        
-        public SimpleElection(IEnumerable<SimpleBallot> ballots, IEnumerable<ICandidate> candidates) : base(ballots, candidates) { }
+
+        public SimpleElection(IEnumerable<SimpleBallot> ballots, IEnumerable<ICandidate> candidates)
+            : base(ballots, candidates)
+        {
+            if (ballots is null) throw new ArgumentException(ItMustHaveBallotsErrorMessage);
+            if (candidates is null) throw new ArgumentException(ItMustHaveCandidatesErrorMessage);
+        }
 
         public override void CountVotes()
         {

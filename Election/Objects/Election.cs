@@ -20,8 +20,11 @@ namespace Election.Objects
         public abstract void CountVotes();
     }
 
-    class SimpleElection : Election<SimpleBallot, SimpleVote>
+    public class SimpleElection : Election<SimpleBallot, SimpleVote>
     {
+        public const string ItMustHaveBallotsErrorMessage = "Simple election must have ballots";
+        public const string ItMustHaveCandidatesErrorMessage = "Simple election must have candidates";
+        
         public SimpleElection(IEnumerable<SimpleBallot> ballots, IEnumerable<ICandidate> candidates) : base(ballots, candidates) { }
 
         public override void CountVotes()

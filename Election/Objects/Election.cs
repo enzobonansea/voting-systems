@@ -8,12 +8,18 @@ namespace Election.Objects
 {
     public abstract class Election<TBallot, TVote> : IElection<TBallot, TVote> where TBallot : IBallot<TVote> where TVote : IVote
     {
+        public const string ItMustHaveBallotsErrorMessage = "Simple election must have ballots";
+        public const string ItMustHaveCandidatesErrorMessage = "Simple election must have candidates";
+        
         public IEnumerable<TBallot> Ballots { get; protected set; }
         public IEnumerable<ICandidate> Candidates { get; protected set; }
         public ICandidate Winner { get; protected set; }
 
         public Election(IEnumerable<TBallot> ballots, IEnumerable<ICandidate> candidates)
         {
+            if (ballots is null) throw new ArgumentException(ItMustHaveBallotsErrorMessage);
+            if (candidates is null) throw new ArgumentException(ItMustHaveCandidatesErrorMessage);
+            
             this.Ballots = ballots;
             this.Candidates = candidates;
         }
@@ -23,14 +29,9 @@ namespace Election.Objects
 
     public class SimpleElection : Election<SimpleBallot, SimpleVote>
     {
-        public const string ItMustHaveBallotsErrorMessage = "Simple election must have ballots";
-        public const string ItMustHaveCandidatesErrorMessage = "Simple election must have candidates";
-
         public SimpleElection(IEnumerable<SimpleBallot> ballots, IEnumerable<ICandidate> candidates)
             : base(ballots, candidates)
         {
-            if (ballots is null) throw new ArgumentException(ItMustHaveBallotsErrorMessage);
-            if (candidates is null) throw new ArgumentException(ItMustHaveCandidatesErrorMessage);
             this.EnsureOneVotePerPerson();
         }
 
@@ -56,7 +57,7 @@ namespace Election.Objects
         }
     }
 
-    class RankedChoiceElection : Election<RankedChoiceBallot, RankedChoiceVote>
+    public class RankedChoiceElection : Election<RankedChoiceBallot, RankedChoiceVote>
     {
         public RankedChoiceElection(IEnumerable<RankedChoiceBallot> ballots, IEnumerable<ICandidate> candidates) : base(ballots, candidates) { }
 

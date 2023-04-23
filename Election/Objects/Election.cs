@@ -17,8 +17,8 @@ namespace Election.Objects
 
         public Election(IEnumerable<TBallot> ballots, IEnumerable<ICandidate> candidates)
         {
-            if (ballots is null) throw new ArgumentException(ItMustHaveBallotsErrorMessage);
-            if (candidates is null) throw new ArgumentException(ItMustHaveCandidatesErrorMessage);
+            if (ballots is null || !ballots.Any()) throw new ArgumentException(ItMustHaveBallotsErrorMessage);
+            if (candidates is null || !candidates.Any()) throw new ArgumentException(ItMustHaveCandidatesErrorMessage);
             
             this.Ballots = ballots;
             this.Candidates = candidates;

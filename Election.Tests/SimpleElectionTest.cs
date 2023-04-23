@@ -10,12 +10,18 @@ public class SimpleElectionTest
     public void ItMustHaveBallots()
     {
         Assert.Equal(SimpleElection.ItMustHaveBallotsErrorMessage, Assert.Throws<ArgumentException>(() => new SimpleElection(null, null)).Message);
+        Assert.Equal(SimpleElection.ItMustHaveBallotsErrorMessage, Assert.Throws<ArgumentException>(() => new SimpleElection(new List<SimpleBallot>(), null)).Message);
     }
 
     [Fact]
     public void ItMustHaveCandidates()
     {
-        Assert.Equal(SimpleElection.ItMustHaveCandidatesErrorMessage, Assert.Throws<ArgumentException>(() => new SimpleElection(new List<SimpleBallot>(), null)).Message);
+        var ballots = new List<SimpleBallot>
+        {
+            new SimpleBallot(new SimpleVote(new SimpleVoter(1, "Voter one"), new SimpleCandidate(1, "Candidate one")))
+        };
+        Assert.Equal(SimpleElection.ItMustHaveCandidatesErrorMessage, Assert.Throws<ArgumentException>(() => new SimpleElection(ballots, null)).Message);
+        Assert.Equal(SimpleElection.ItMustHaveCandidatesErrorMessage, Assert.Throws<ArgumentException>(() => new SimpleElection(ballots, new List<ICandidate>())).Message);
     }
 
     [Fact]

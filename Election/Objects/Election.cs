@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Election.Interfaces;
+using Election.Objects.Exceptions;
 
 namespace Election.Objects
 {
@@ -30,6 +31,14 @@ namespace Election.Objects
         {
             if (ballots is null) throw new ArgumentException(ItMustHaveBallotsErrorMessage);
             if (candidates is null) throw new ArgumentException(ItMustHaveCandidatesErrorMessage);
+            this.EnsureOneVotePerPerson();
+        }
+
+        private void EnsureOneVotePerPerson()
+        {
+            var votersListed = this.Ballots.SelectMany(ballot => ballot.Votes).Select(vote => vote.Voter.Id).ToList();
+            var nonRepeatedVoters = new HashSet<int>(votersListed);
+            if (nonRepeatedVoters.Count < votersListed.Count) throw new PeopleCannotVoteMoreThanOnce();
         }
 
         public override void CountVotes()

@@ -97,6 +97,8 @@ namespace Election.Objects
             this.EnsureDifferentCandidatesInBallots();
         }
 
+        public new ICandidate Winner => this.lastRound.Winner;
+        
         public int GetFirstPreferenceVotes(ICandidate candidate)
         {
             return this.lastRound.GetFirstPreferenceVotes(candidate);
@@ -164,27 +166,9 @@ namespace Election.Objects
 
         public override void CountVotes()
         {
-            do
-            {
-                var round = new RankedChoiceElectionRound(Ballots, Candidates);
-                if (round.WonByAbsoluteMajority)
-                {
-                    this.Winner = round.Winner;
-                }
-                else
-                {
-                    this.Candidates = this.Candidates.Where(candidate => candidate != round.Loser);
-                    foreach (var ballot in Ballots)
-                    {
-                        if (ballot.Has(round.Loser))
-                        {
-                            ballot.Remove(round.Loser);
-                        }
-                    }
-                }
-
-                this.lastRound = round;
-            } while (this.Winner is null);
+            this.lastRound = new RankedChoiceElectionRound(Ballots, Candidates);
+            do this.lastRound.Next(); while (!this.lastRound.WonByAbsoluteMajority);
+            this.Candidates = this.lastRound.Candidates;
         }
     }
 }

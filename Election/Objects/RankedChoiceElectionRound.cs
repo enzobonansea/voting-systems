@@ -6,15 +6,22 @@ namespace Election.Objects
 {
     public class RankedChoiceElectionRound
     {
-        private readonly Dictionary<ICandidate, int> firstPreferenceVotesPerCandidate;
-        private readonly ICandidate winner;
-        private readonly ICandidate loser;
-        private readonly bool wonByAbsoluteMajority;
+        private Dictionary<ICandidate, int> firstPreferenceVotesPerCandidate;
+        private ICandidate winner;
+        private ICandidate loser;
+        private bool wonByAbsoluteMajority;
 
         public RankedChoiceElectionRound(IEnumerable<RankedChoiceBallot> ballots, IEnumerable<ICandidate> candidates)
         {
-            var firstPreferenceVotes = ballots.SelectMany(ballot => ballot.Votes).Where(vote => vote.Rank == 1).ToList();
-            this.firstPreferenceVotesPerCandidate = candidates.ToDictionary(candidate => candidate, _ => 0);
+            this.Ballots = ballots;
+            this.Candidates = candidates;
+            CalculateWinnerAndLoser();
+        }
+
+        private void CalculateWinnerAndLoser()
+        {
+            var firstPreferenceVotes = Ballots.SelectMany(ballot => ballot.Votes).Where(vote => vote.Rank == 1).ToList();
+            this.firstPreferenceVotesPerCandidate = Candidates.ToDictionary(candidate => candidate, _ => 0);
             foreach (var vote in firstPreferenceVotes) this.firstPreferenceVotesPerCandidate[vote.Candidate] += 1;
 
             var firstPreferenceVotesPerCandidateOrdered = this.firstPreferenceVotesPerCandidate
@@ -23,23 +30,15 @@ namespace Election.Objects
 
             this.winner = firstPreferenceVotesPerCandidateOrdered.First().Key;
             this.loser = firstPreferenceVotesPerCandidateOrdered.Last().Key;
-            this.wonByAbsoluteMajority = (firstPreferenceVotesPerCandidateOrdered.First().Value / (decimal)firstPreferenceVotes.Count()) > (decimal)0.5;
+            this.wonByAbsoluteMajority =
+                (firstPreferenceVotesPerCandidateOrdered.First().Value / (decimal)firstPreferenceVotes.Count()) > (decimal)0.5;
         }
 
-        public ICandidate Winner
-        {
-            get => this.winner;
-        }
-
-        public ICandidate Loser
-        {
-            get => this.loser;
-        }
-
-        public bool WonByAbsoluteMajority
-        {
-            get => wonByAbsoluteMajority;
-        }
+        public ICandidate Winner { get => this.winner; }
+        public ICandidate Loser { get => this.loser; }
+        public bool WonByAbsoluteMajority { get => wonByAbsoluteMajority; }
+        public IEnumerable<RankedChoiceBallot> Ballots { get; private set; }
+        public IEnumerable<ICandidate> Candidates { get; private set; }
 
         public int GetFirstPreferenceVotes(ICandidate candidate)
         {
@@ -51,6 +50,22 @@ namespace Election.Objects
             {
                 throw new CandidateHasNotFirstPreferenceVotes();
             }
+        }
+
+        public void Next()
+        {
+            if (this.WonByAbsoluteMajority) return;
+
+            this.Candidates = this.Candidates.Where(candidate => candidate != this.Loser).ToList();
+            foreach (var ballot in Ballots)
+            {
+                if (ballot.Has(this.Loser))
+                {
+                    ballot.Remove(this.Loser);
+                }
+            }
+            
+            this.CalculateWinnerAndLoser();
         }
     }
 }

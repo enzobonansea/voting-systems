@@ -143,7 +143,17 @@ namespace Election.Objects
 
         public override void CountVotes()
         {
-            throw new NotImplementedException();
+            var firstPreferenceVotes = Ballots.SelectMany(ballot => ballot.Votes).Where(vote => vote.Rank == 1);
+            var firstPreferenceVotesPerCandidate =  this.Candidates.ToDictionary(candidate => candidate.Id, _ => 0);
+
+            foreach (var vote in firstPreferenceVotes)
+            {
+                firstPreferenceVotesPerCandidate[vote.Candidate.Id] += 1;
+            }
+            
+            var winnerId = firstPreferenceVotesPerCandidate.OrderByDescending(votes => votes.Value).First().Key;
+
+            this.Winner = this.Candidates.First(candidate => candidate.Id == winnerId);
         }
     }
 }

@@ -185,4 +185,36 @@ public class RankedChoiceElectionTest
         
         Assert.Throws<BallotsMustHaveDifferentCandidates>(() => new RankedChoiceElection(ballots, candidates));
     }
+
+    [Fact]
+    public void AbsoluteMajorityWins()
+    {
+        var voterOne = new SimpleVoter(1, "Voter one");
+        var voterTwo = new SimpleVoter(2, "Voter two");
+        var voterThree = new SimpleVoter(3, "Voter three");
+        var candidateOne = new SimpleCandidate(1, "Candidate one");
+        var candidateTwo = new SimpleCandidate(2, "Candidate two");
+        var ballots = new List<RankedChoiceBallot>
+        {
+            new RankedChoiceBallot(new List<RankedChoiceVote>
+            {
+                new RankedChoiceVote(voterOne, candidateOne, 1),
+                new RankedChoiceVote(voterOne, candidateTwo,  2),
+            }),
+            new RankedChoiceBallot(new List<RankedChoiceVote>
+            {
+                new RankedChoiceVote(voterTwo, candidateOne, 1),
+                new RankedChoiceVote(voterTwo, candidateTwo,  2),
+            }),
+            new RankedChoiceBallot(new List<RankedChoiceVote>
+            {
+                new RankedChoiceVote(voterThree, candidateTwo,  1),
+                new RankedChoiceVote(voterThree, candidateOne, 2),
+            }),
+        };
+        var candidates = new List<ICandidate>() { candidateOne, candidateTwo };
+        var election = new RankedChoiceElection(ballots, candidates);
+        election.CountVotes();
+        Assert.Equal(candidateOne, election.Winner);
+    }
 }

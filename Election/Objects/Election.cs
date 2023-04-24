@@ -24,6 +24,18 @@ namespace Election.Objects
             this.Candidates = candidates;
             
             this.EnsureOneVotePerPerson();
+            this.EnsureCandidatesAreValid();
+        }
+        
+        private void EnsureCandidatesAreValid()
+        {
+            var candidatesIds = this.Candidates.Select(candidate => candidate.Id);
+            var someCandidateIsInvalid = this.Ballots
+                .SelectMany(ballot => ballot.Votes)
+                .Select(vote => vote.Candidate.Id)
+                .Any(candidateId => !candidatesIds.Contains(candidateId));
+
+            if (someCandidateIsInvalid) throw new InvalidCandidate();
         }
 
         protected abstract void EnsureOneVotePerPerson();
@@ -36,18 +48,6 @@ namespace Election.Objects
         public SimpleElection(IEnumerable<SimpleBallot> ballots, IEnumerable<ICandidate> candidates)
             : base(ballots, candidates)
         {
-            this.EnsureCandidatesAreValid();
-        }
-
-        private void EnsureCandidatesAreValid()
-        {
-            var candidatesIds = this.Candidates.Select(candidate => candidate.Id);
-            var someCandidateIsInvalid = this.Ballots
-                .SelectMany(ballot => ballot.Votes)
-                .Select(vote => vote.Candidate.Id)
-                .Any(candidateId => !candidatesIds.Contains(candidateId));
-
-            if (someCandidateIsInvalid) throw new InvalidCandidate();
         }
 
         protected override void EnsureOneVotePerPerson()

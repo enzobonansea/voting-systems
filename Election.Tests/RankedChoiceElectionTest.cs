@@ -130,4 +130,21 @@ public class RankedChoiceElectionTest
         
         Assert.Throws<PeopleCannotVoteMoreThanOnce>(() => new RankedChoiceElection(ballots, candidates));
     }
+    
+    [Fact]
+    public void VotedCandidatesMustBeValid()
+    {
+        var voterOne = new SimpleVoter(1, "Voter one");
+        var candidateOne = new SimpleCandidate(1, "Candidate one");
+        var ballots = new List<RankedChoiceBallot>
+        {
+            new RankedChoiceBallot(new List<RankedChoiceVote>
+            {
+                new RankedChoiceVote(voterOne, new SimpleCandidate(2, "Candidate two"), 1),
+            }),
+        };
+        var candidates = new List<ICandidate>() { candidateOne };
+        
+        Assert.Throws<InvalidCandidate>(() => new RankedChoiceElection(ballots, candidates));
+    }
 }

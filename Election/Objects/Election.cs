@@ -74,6 +74,8 @@ namespace Election.Objects
 
     public class RankedChoiceElection : Election<RankedChoiceBallot, RankedChoiceVote>
     {
+        private RankedChoiceElectionRound lastRound;
+        
         public RankedChoiceElection(IEnumerable<RankedChoiceBallot> ballots, IEnumerable<ICandidate> candidates)
             : base(ballots, candidates)
         {
@@ -82,6 +84,11 @@ namespace Election.Objects
             this.EnsureRanksBetweenOneAndVotesLength();
             this.EnsureSameVoterInBallots();
             this.EnsureDifferentCandidatesInBallots();
+        }
+
+        public int GetFirstPreferenceVotes(ICandidate candidate)
+        {
+            return this.lastRound.GetFirstPreferenceVotes(candidate);
         }
 
         private void EnsureDifferentCandidatesInBallots()
@@ -143,29 +150,27 @@ namespace Election.Objects
 
         public override void CountVotes()
         {
-            var firstPreferenceVotes = Ballots.SelectMany(ballot => ballot.Votes).Where(vote => vote.Rank == 1);
-            var firstPreferenceVotesPerCandidate =  this.Candidates.ToDictionary(candidate => candidate.Id, _ => 0);
+            do
+            {
+                var round = new RankedChoiceElectionRound(Ballots, Candidates);
+                if (round.WonByAbsoluteMajority)
+                {
+                    this.Winner = round.Winner;
+                }
+                else
+                {
+                    this.Candidates = this.Candidates.Where(candidate => candidate != round.Loser);
+                    foreach (var ballot in Ballots)
+                    {
+                        if (ballot.Has(round.Loser))
+                        {
+                            ballot.Remove(round.Loser);
+                        }
+                    }
+                }
 
-            foreach (var vote in firstPreferenceVotes)
-            {
-                firstPreferenceVotesPerCandidate[vote.Candidate.Id] += 1;
-            }
-
-            var orderedFirstPreferenceVotesPerCandidate =
-                firstPreferenceVotesPerCandidate.OrderByDescending(votes => votes.Value);
-            var firstPreferenceWinner = orderedFirstPreferenceVotesPerCandidate.First();
-            var firstPreferenceAbsoluteMajority =
-                (firstPreferenceWinner.Value / (decimal)firstPreferenceVotes.Count()) > (decimal)0.5;
-            if (firstPreferenceAbsoluteMajority)
-            {
-                this.Winner = this.Candidates.First(candidate => candidate.Id == firstPreferenceWinner.Key);
-            }
-            else
-            {
-                var candidateWithFewestFirstPreferenceVotes = orderedFirstPreferenceVotesPerCandidate.Last().Key;
-                this.Candidates =
-                    this.Candidates.Where(candidate => candidate.Id != candidateWithFewestFirstPreferenceVotes);
-            }
+                this.lastRound = round;
+            } while (this.Winner is null);
         }
     }
 }

@@ -9,6 +9,7 @@ namespace Election.Objects
     {
         private Dictionary<ICandidate, int> firstPreferenceVotesPerCandidate;
         private ICandidate winner;
+        private ICandidate loser;
 
         public RankedChoiceElectionRound(IEnumerable<RankedChoiceBallot> ballots, IEnumerable<ICandidate> candidates)
         {
@@ -16,14 +17,22 @@ namespace Election.Objects
             this.firstPreferenceVotesPerCandidate = candidates.ToDictionary(candidate => candidate, _ => 0);
             foreach (var vote in firstPreferenceVotes) this.firstPreferenceVotesPerCandidate[vote.Candidate] += 1;
 
-            this.winner = this.firstPreferenceVotesPerCandidate
+            var firstPreferenceVotesPerCandidateOrdered = this.firstPreferenceVotesPerCandidate
                 .OrderByDescending(votesPerCandidate => votesPerCandidate.Value)
-                .First().Key;
+                .ToList();
+
+            this.winner = firstPreferenceVotesPerCandidateOrdered.First().Key;
+            this.loser = firstPreferenceVotesPerCandidateOrdered.Last().Key;
         }
 
         public ICandidate Winner
         {
             get => this.winner;
+        }
+
+        public ICandidate Loser
+        {
+            get => this.loser;
         }
 
         public int GetFirstPreferenceVotes(ICandidate candidate)

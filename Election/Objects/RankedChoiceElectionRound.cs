@@ -6,10 +6,10 @@ namespace Election.Objects
 {
     public class RankedChoiceElectionRound
     {
-        private Dictionary<ICandidate, int> firstPreferenceVotesPerCandidate;
-        private ICandidate winner;
-        private ICandidate loser;
-        private bool wonByAbsoluteMajority;
+        private readonly Dictionary<ICandidate, int> firstPreferenceVotesPerCandidate;
+        private readonly ICandidate winner;
+        private readonly ICandidate loser;
+        private readonly bool wonByAbsoluteMajority;
 
         public RankedChoiceElectionRound(IEnumerable<RankedChoiceBallot> ballots, IEnumerable<ICandidate> candidates)
         {

@@ -1,5 +1,6 @@
 using Election.Interfaces;
 using Election.Objects;
+using Election.Objects.Exceptions;
 
 namespace Election.Tests;
 

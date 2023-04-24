@@ -1,6 +1,6 @@
 using System;
 
-namespace Election.Objects
+namespace Election.Objects.Exceptions
 {
     public class CandidateHasNotFirstPreferenceVotes : Exception
     {

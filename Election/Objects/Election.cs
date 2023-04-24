@@ -151,8 +151,9 @@ namespace Election.Objects
                 firstPreferenceVotesPerCandidate[vote.Candidate.Id] += 1;
             }
 
-            var firstPreferenceWinner =
-                firstPreferenceVotesPerCandidate.OrderByDescending(votes => votes.Value).First();
+            var orderedFirstPreferenceVotesPerCandidate =
+                firstPreferenceVotesPerCandidate.OrderByDescending(votes => votes.Value);
+            var firstPreferenceWinner = orderedFirstPreferenceVotesPerCandidate.First();
             var firstPreferenceAbsoluteMajority =
                 (firstPreferenceWinner.Value / (decimal)firstPreferenceVotes.Count()) > (decimal)0.5;
             if (firstPreferenceAbsoluteMajority)
@@ -161,7 +162,9 @@ namespace Election.Objects
             }
             else
             {
-                throw new NotImplementedException();
+                var candidateWithFewestFirstPreferenceVotes = orderedFirstPreferenceVotesPerCandidate.Last().Key;
+                this.Candidates =
+                    this.Candidates.Where(candidate => candidate.Id != candidateWithFewestFirstPreferenceVotes);
             }
         }
     }

@@ -150,10 +150,19 @@ namespace Election.Objects
             {
                 firstPreferenceVotesPerCandidate[vote.Candidate.Id] += 1;
             }
-            
-            var winnerId = firstPreferenceVotesPerCandidate.OrderByDescending(votes => votes.Value).First().Key;
 
-            this.Winner = this.Candidates.First(candidate => candidate.Id == winnerId);
+            var firstPreferenceWinner =
+                firstPreferenceVotesPerCandidate.OrderByDescending(votes => votes.Value).First();
+            var firstPreferenceAbsoluteMajority =
+                (firstPreferenceWinner.Value / (decimal)firstPreferenceVotes.Count()) > (decimal)0.5;
+            if (firstPreferenceAbsoluteMajority)
+            {
+                this.Winner = this.Candidates.First(candidate => candidate.Id == firstPreferenceWinner.Key);
+            }
+            else
+            {
+                throw new NotImplementedException();
+            }
         }
     }
 }

@@ -187,34 +187,77 @@ public class RankedChoiceElectionTest
     }
 
     [Fact]
-    public void AbsoluteMajorityWins()
+    public void CandidateWithAbsoluteMajorityInFirstPreferenceWins()
     {
         var voterOne = new SimpleVoter(1, "Voter one");
         var voterTwo = new SimpleVoter(2, "Voter two");
         var voterThree = new SimpleVoter(3, "Voter three");
         var candidateOne = new SimpleCandidate(1, "Candidate one");
         var candidateTwo = new SimpleCandidate(2, "Candidate two");
+        
+        // Candidate one: 2 first-preference votes (66.66%)
+        // Candidate two: 1 first-preference votes (33.33%)
         var ballots = new List<RankedChoiceBallot>
         {
             new RankedChoiceBallot(new List<RankedChoiceVote>
             {
                 new RankedChoiceVote(voterOne, candidateOne, 1),
-                new RankedChoiceVote(voterOne, candidateTwo,  2),
             }),
             new RankedChoiceBallot(new List<RankedChoiceVote>
             {
                 new RankedChoiceVote(voterTwo, candidateOne, 1),
-                new RankedChoiceVote(voterTwo, candidateTwo,  2),
             }),
             new RankedChoiceBallot(new List<RankedChoiceVote>
             {
                 new RankedChoiceVote(voterThree, candidateTwo,  1),
-                new RankedChoiceVote(voterThree, candidateOne, 2),
             }),
         };
-        var candidates = new List<ICandidate>() { candidateOne, candidateTwo };
-        var election = new RankedChoiceElection(ballots, candidates);
+        var election = new RankedChoiceElection(ballots,  new List<ICandidate>() { candidateOne, candidateTwo });
         election.CountVotes();
         Assert.Equal(candidateOne, election.Winner);
+    }
+
+    [Fact]
+    public void CandidateWithoutAbsoluteMajorityInFirstPreferenceDoesNotWin()
+    {
+        // Candidate one: 2 first-preference vote (40%)
+        // Candidate two: 1 first-preference votes (20%)
+        // Candidate three: 1 first-preference votes (20%)
+        // Candidate four: 1 first-preference votes (20%)
+        var voterOne = new SimpleVoter(1, "Voter one");
+        var voterTwo = new SimpleVoter(2, "Voter two");
+        var voterThree = new SimpleVoter(3, "Voter three");
+        var voterFour = new SimpleVoter(4, "Voter four");
+        var voterFive = new SimpleVoter(5, "Voter five"); 
+        var candidateOne = new SimpleCandidate(1, "Candidate one");
+        var candidateTwo = new SimpleCandidate(2, "Candidate two");
+        var candidateThree = new SimpleCandidate(3, "Candidate three");
+        var candidateFour = new SimpleCandidate(4, "Candidate four");
+        var ballots = new List<RankedChoiceBallot>
+        {
+            new RankedChoiceBallot(new List<RankedChoiceVote>
+            {
+                new RankedChoiceVote(voterOne, candidateOne, 1),
+            }),
+            new RankedChoiceBallot(new List<RankedChoiceVote>
+            {
+                new RankedChoiceVote(voterTwo, candidateOne, 1),
+            }),
+            new RankedChoiceBallot(new List<RankedChoiceVote>
+            {
+                new RankedChoiceVote(voterThree, candidateTwo,  1),
+            }),
+            new RankedChoiceBallot(new List<RankedChoiceVote>
+            {
+                new RankedChoiceVote(voterFour, candidateThree,  1),
+            }),
+            new RankedChoiceBallot(new List<RankedChoiceVote>
+            {
+                new RankedChoiceVote(voterFive, candidateFour,  1),
+            }),
+        };
+        var election = new RankedChoiceElection(ballots, new List<ICandidate>() { candidateOne, candidateTwo, candidateThree, candidateFour });
+        
+        Assert.Throws<NotImplementedException>(() => election.CountVotes());
     }
 }

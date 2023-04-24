@@ -67,9 +67,18 @@ namespace Election.Objects
             {
                 votesPerCandidate[ballot.Candidate.Id] += 1;
             }
-            
-            var winnerId = votesPerCandidate.OrderByDescending(votes => votes.Value).First().Key;
 
+            var maximumVotes = -1;
+            var winnerId = -1;
+            foreach (var votesOfCandidate in votesPerCandidate)
+            {
+                if (votesOfCandidate.Value > maximumVotes)
+                {
+                    maximumVotes = votesOfCandidate.Value;
+                    winnerId = votesOfCandidate.Key;
+                }
+            }
+            
             this.Winner = this.Candidates.First(candidate => candidate.Id == winnerId);
         }
     }

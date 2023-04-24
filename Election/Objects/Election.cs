@@ -75,6 +75,17 @@ namespace Election.Objects
             : base(ballots, candidates)
         {
             this.EnsureBallotsSameVotesQuantity(ballots);
+            this.EnsureBallotsVotesHaveDifferentRanks();
+        }
+
+        private void EnsureBallotsVotesHaveDifferentRanks()
+        {
+            foreach (var ballot in Ballots)
+            {
+                var ranksList = ballot.Votes.Select(vote => vote.Rank).ToList();
+                var ranksSet = new HashSet<int>(ranksList);
+                if (ranksSet.Count < ranksList.Count) throw new BallotsVotesMustHaveDifferentRanks();
+            }
         }
 
         private void EnsureBallotsSameVotesQuantity(IEnumerable<RankedChoiceBallot> ballots)

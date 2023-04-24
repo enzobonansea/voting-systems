@@ -76,6 +76,16 @@ namespace Election.Objects
         {
             this.EnsureBallotsSameVotesQuantity();
             this.EnsureBallotsVotesHaveDifferentRanks();
+            this.EnsureRanksBetweenOneAndVotesLength();
+        }
+
+        private void EnsureRanksBetweenOneAndVotesLength()
+        {
+            var votesLength = Ballots.First().Votes.Count();
+            if (Ballots.SelectMany(ballot => ballot.Votes).Any(vote => vote.Rank < 1 || vote.Rank > votesLength))
+            {
+                throw new BallotsMustHaveRanksBetweenOneAndVotesLength();
+            }
         }
 
         private void EnsureBallotsVotesHaveDifferentRanks()

@@ -70,4 +70,43 @@ public class RankedChoiceElectionTest
         Assert.Throws<BallotsVotesMustHaveDifferentRanks>(() => new RankedChoiceElection(ballots, candidates));
     }
 
+    
+    [Fact]
+    public void BallotsMustHaveRanksBetweenOneAndVotesLength()
+    {
+        var voterOne = new SimpleVoter(1, "Voter one");
+        var voterTwo = new SimpleVoter(2, "Voter two");
+        var candidateOne = new SimpleCandidate(1, "Candidate one");
+        var candidateTwo = new SimpleCandidate(2, "Candidate two");
+        var candidates = new List<ICandidate>() { candidateOne, candidateTwo };
+        var ballotsWithTooBigRank = new List<RankedChoiceBallot>
+        {
+            new RankedChoiceBallot(new List<RankedChoiceVote>
+            {
+                new RankedChoiceVote(voterOne, candidateOne, 1),
+                new RankedChoiceVote(voterOne, candidateTwo, 2)
+            }),
+            new RankedChoiceBallot(new List<RankedChoiceVote>
+            {
+                new RankedChoiceVote(voterTwo, candidateOne, 1),
+                new RankedChoiceVote(voterOne, candidateTwo, 3)
+            }),
+        };
+        var ballotsWithTooLittleRank = new List<RankedChoiceBallot>
+        {
+            new RankedChoiceBallot(new List<RankedChoiceVote>
+            {
+                new RankedChoiceVote(voterOne, candidateOne, 1),
+                new RankedChoiceVote(voterOne, candidateTwo, 2)
+            }),
+            new RankedChoiceBallot(new List<RankedChoiceVote>
+            {
+                new RankedChoiceVote(voterTwo, candidateOne, 0),
+                new RankedChoiceVote(voterOne, candidateTwo, 2)
+            }),
+        };
+
+        Assert.Throws<BallotsMustHaveRanksBetweenOneAndVotesLength>(() => new RankedChoiceElection(ballotsWithTooBigRank, candidates));
+        Assert.Throws<BallotsMustHaveRanksBetweenOneAndVotesLength>(() => new RankedChoiceElection(ballotsWithTooLittleRank, candidates));
+    }
 }

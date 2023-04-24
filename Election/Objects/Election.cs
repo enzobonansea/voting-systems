@@ -80,6 +80,19 @@ namespace Election.Objects
             this.EnsureBallotsSameVotesQuantity();
             this.EnsureBallotsVotesHaveDifferentRanks();
             this.EnsureRanksBetweenOneAndVotesLength();
+            this.EnsureSameVoterInBallots();
+        }
+
+        private void EnsureSameVoterInBallots()
+        {
+            foreach (var ballot in Ballots)
+            {
+                var voterId = ballot.Votes.First().Voter.Id;
+                if (ballot.Votes.Skip(1).Select(vote => vote.Voter.Id).Any(otherVoterId => otherVoterId != voterId))
+                {
+                    throw new BallotsMustHaveSameVoter();
+                }
+            }
         }
 
         private void EnsureRanksBetweenOneAndVotesLength()

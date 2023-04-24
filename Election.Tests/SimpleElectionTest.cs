@@ -25,30 +25,6 @@ public class SimpleElectionTest
     }
 
     [Fact]
-    public void ItMustWinWhoseHaveMoreVotes()
-    {
-        var voterOne = new SimpleVoter(1, "Voter one");
-        var voterTwo = new SimpleVoter(2, "Voter two");
-        var voterThree = new SimpleVoter(3, "Voter three");
-
-        var candidateOne = new SimpleCandidate(1, "Candidate one");
-        var candidateTwo = new SimpleCandidate(2, "Candidate three");
-        
-        var ballots = new List<SimpleBallot>
-        {
-            new SimpleBallot(new SimpleVote(voterOne, candidateOne)),
-            new SimpleBallot(new SimpleVote(voterTwo, candidateOne)),
-            new SimpleBallot(new SimpleVote(voterThree, candidateTwo)),
-        };
-
-        var election = new SimpleElection(ballots, new List<ICandidate>() { candidateOne, candidateTwo });
-        
-        election.CountVotes();
-        
-        Assert.Equal(candidateOne, election.Winner);
-    }
-
-    [Fact]
     public void PeopleCannotVoteMoreThanOnce()
     {
         var voterOne = new SimpleVoter(1, "Voter one");
@@ -75,5 +51,61 @@ public class SimpleElectionTest
         var candidates = new List<ICandidate>() { candidateOne };
         
         Assert.Throws<InvalidCandidate>(() => new SimpleElection(invalidBallots, candidates));
+    }
+    
+    [Fact]
+    public void ItMustWinWhoseHaveAbsoluteMajorityOfVotes()
+    {
+        var voterOne = new SimpleVoter(1, "Voter one");
+        var voterTwo = new SimpleVoter(2, "Voter two");
+        var voterThree = new SimpleVoter(3, "Voter three");
+
+        var candidateOne = new SimpleCandidate(1, "Candidate one");
+        var candidateTwo = new SimpleCandidate(2, "Candidate two");
+        
+        var ballots = new List<SimpleBallot>
+        {
+            // Candidate one: 66.66%
+            new SimpleBallot(new SimpleVote(voterOne, candidateOne)),
+            new SimpleBallot(new SimpleVote(voterTwo, candidateOne)),
+            // Candidate two: 33.33%
+            new SimpleBallot(new SimpleVote(voterThree, candidateTwo)),
+        };
+
+        var election = new SimpleElection(ballots, new List<ICandidate>() { candidateOne, candidateTwo });
+        
+        election.CountVotes();
+        
+        Assert.Equal(candidateOne, election.Winner);
+    }
+    
+    [Fact]
+    public void ItMustWinWhoseHaveMoreVotesButNotAbsoluteMajorityOfVotes()
+    {
+        var voterOne = new SimpleVoter(1, "Voter one");
+        var voterTwo = new SimpleVoter(2, "Voter two");
+        var voterThree = new SimpleVoter(3, "Voter three");
+        var voterFour = new SimpleVoter(4, "Voter four");
+
+        var candidateOne = new SimpleCandidate(1, "Candidate one");
+        var candidateTwo = new SimpleCandidate(2, "Candidate two");
+        var candidateThree = new SimpleCandidate(3, "Candidate three");
+        
+        var ballots = new List<SimpleBallot>
+        {
+            // Candidate one: 50%
+            new SimpleBallot(new SimpleVote(voterOne, candidateOne)),
+            new SimpleBallot(new SimpleVote(voterTwo, candidateOne)),
+            // Candidate two: 25%
+            new SimpleBallot(new SimpleVote(voterThree, candidateTwo)),
+            // Candidate three: 25%
+            new SimpleBallot(new SimpleVote(voterFour, candidateThree)),
+        };
+
+        var election = new SimpleElection(ballots, new List<ICandidate>() { candidateOne, candidateTwo, candidateThree });
+        
+        election.CountVotes();
+        
+        Assert.Equal(candidateOne, election.Winner);
     }
 }

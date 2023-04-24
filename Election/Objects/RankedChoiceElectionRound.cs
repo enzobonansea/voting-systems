@@ -10,6 +10,7 @@ namespace Election.Objects
         private Dictionary<ICandidate, int> firstPreferenceVotesPerCandidate;
         private ICandidate winner;
         private ICandidate loser;
+        private bool wonByAbsoluteMajority;
 
         public RankedChoiceElectionRound(IEnumerable<RankedChoiceBallot> ballots, IEnumerable<ICandidate> candidates)
         {
@@ -23,6 +24,7 @@ namespace Election.Objects
 
             this.winner = firstPreferenceVotesPerCandidateOrdered.First().Key;
             this.loser = firstPreferenceVotesPerCandidateOrdered.Last().Key;
+            this.wonByAbsoluteMajority = (firstPreferenceVotesPerCandidateOrdered.First().Value / (decimal)firstPreferenceVotes.Count()) > (decimal)0.5;
         }
 
         public ICandidate Winner
@@ -33,6 +35,11 @@ namespace Election.Objects
         public ICandidate Loser
         {
             get => this.loser;
+        }
+
+        public bool WonByAbsoluteMajority
+        {
+            get => wonByAbsoluteMajority;
         }
 
         public int GetFirstPreferenceVotes(ICandidate candidate)

@@ -140,4 +140,48 @@ public class RankedChoiceElectionRoundTest
         var round = new RankedChoiceElectionRound(ballots, candidates);
         Assert.Equal(candidateThree, round.Loser);
     }
+
+    [Fact]
+    public void WonByAbsoluteMajorityIsTrueIfAndOnlyIfWinnerHasMoreThan50PercentOfVotes()
+    {
+        var voterOne = new SimpleVoter(1, "Voter one");
+        var voterTwo = new SimpleVoter(2, "Voter two");
+        var voterThree = new SimpleVoter(3, "Voter three");
+        var candidateOne = new SimpleCandidate(1, "Candidate one");
+        var candidateTwo = new SimpleCandidate(2, "Candidate two");
+        var candidates = new List<ICandidate> { candidateOne, candidateTwo };
+        // Candidate one: 2 first-preference votes (66.66%)
+        // Candidate two: 1 first-preference votes (33.33%)
+        var ballotsWithAbsoluteMajority = new List<RankedChoiceBallot>
+        {
+            new RankedChoiceBallot(new List<RankedChoiceVote>
+            {
+                new RankedChoiceVote(voterOne, candidateOne, 1),
+            }),
+            new RankedChoiceBallot(new List<RankedChoiceVote>
+            {
+                new RankedChoiceVote(voterTwo, candidateOne, 1),
+            }),
+            new RankedChoiceBallot(new List<RankedChoiceVote>
+            {
+                new RankedChoiceVote(voterThree, candidateTwo,  1),
+            }),
+        };
+        Assert.True(new RankedChoiceElectionRound(ballotsWithAbsoluteMajority, candidates).WonByAbsoluteMajority);
+        
+        // Candidate one: 1 first-preference votes (50%)
+        // Candidate two: 1 first-preference votes (50%)
+        var ballotsWithoutAbsoluteMajority = new List<RankedChoiceBallot>
+        {
+            new RankedChoiceBallot(new List<RankedChoiceVote>
+            {
+                new RankedChoiceVote(voterOne, candidateOne, 1),
+            }),
+            new RankedChoiceBallot(new List<RankedChoiceVote>
+            {
+                new RankedChoiceVote(voterTwo, candidateTwo, 1),
+            }),
+        };
+        Assert.False(new RankedChoiceElectionRound(ballotsWithoutAbsoluteMajority, candidates).WonByAbsoluteMajority);
+    }
 }

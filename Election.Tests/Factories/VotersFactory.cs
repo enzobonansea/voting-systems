@@ -1,7 +1,7 @@
 using Election.Interfaces;
 using Election.Objects;
 
-namespace Election.Tests;
+namespace Election.Tests.Factories;
 
 public static class VotersFactory
 {

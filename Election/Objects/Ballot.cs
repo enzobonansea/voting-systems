@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Election.Interfaces;
 
@@ -26,5 +27,10 @@ namespace Election.Objects
                 vote.Rank--;
             }
         }
+
+        public bool Has(ICandidate candidate)
+        {
+            return this.Votes.Any(vote => vote.Candidate == candidate);
+        }    
     }
 }

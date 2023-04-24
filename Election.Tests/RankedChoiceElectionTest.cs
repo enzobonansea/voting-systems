@@ -1,5 +1,6 @@
 using Election.Interfaces;
 using Election.Objects;
+using Election.Objects.Exceptions;
 
 namespace Election.Tests;
 
@@ -24,5 +25,29 @@ public class RankedChoiceElectionTest
         };
         Assert.Equal(RankedChoiceElection.ItMustHaveCandidatesErrorMessage, Assert.Throws<ArgumentException>(() => new RankedChoiceElection(ballots, null)).Message);
         Assert.Equal(RankedChoiceElection.ItMustHaveCandidatesErrorMessage, Assert.Throws<ArgumentException>(() => new RankedChoiceElection(ballots, new List<ICandidate>())).Message);
+    }
+
+    [Fact]
+    public void BallotsMustHaveSameVotesQuantity()
+    {
+        var voterOne = new SimpleVoter(1, "Voter one");
+        var voterTwo = new SimpleVoter(2, "Voter two");
+        var candidateOne = new SimpleCandidate(1, "Candidate one");
+        var candidateTwo = new SimpleCandidate(2, "Candidate two");
+        var ballots = new List<RankedChoiceBallot>
+        {
+            new RankedChoiceBallot(new List<RankedChoiceVote>
+            {
+                new RankedChoiceVote(voterOne, candidateOne, 1),
+                new RankedChoiceVote(voterOne, candidateTwo, 2)
+            }),
+            new RankedChoiceBallot(new List<RankedChoiceVote>
+            {
+                new RankedChoiceVote(voterTwo, candidateOne, 1),
+            }),
+        };
+        var candidates = new List<ICandidate>() { candidateOne, candidateTwo };
+
+        Assert.Throws<BallotsMustHaveSameVotesQuantity>(() => new RankedChoiceElection(ballots, candidates));
     }
 }

@@ -71,7 +71,20 @@ namespace Election.Objects
 
     public class RankedChoiceElection : Election<RankedChoiceBallot, RankedChoiceVote>
     {
-        public RankedChoiceElection(IEnumerable<RankedChoiceBallot> ballots, IEnumerable<ICandidate> candidates) : base(ballots, candidates) { }
+        public RankedChoiceElection(IEnumerable<RankedChoiceBallot> ballots, IEnumerable<ICandidate> candidates)
+            : base(ballots, candidates)
+        {
+            this.EnsureBallotsSameVotesQuantity(ballots);
+        }
+
+        private void EnsureBallotsSameVotesQuantity(IEnumerable<RankedChoiceBallot> ballots)
+        {
+            var representative = ballots.First();
+            if (ballots.Skip(1).Any(ballot => ballot.Votes.Count() != representative.Votes.Count()))
+            {
+                throw new BallotsMustHaveSameVotesQuantity();
+            }
+        }
 
         public override void CountVotes()
         {

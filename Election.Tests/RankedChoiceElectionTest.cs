@@ -167,4 +167,22 @@ public class RankedChoiceElectionTest
         
         Assert.Throws<BallotsMustHaveSameVoter>(() => new RankedChoiceElection(ballots, candidates));
     }
+    
+    [Fact]
+    public void BallotsMustHaveDifferentCandidates()
+    {
+        var voterOne = new SimpleVoter(1, "Voter one");
+        var candidateOne = new SimpleCandidate(1, "Candidate one");
+        var ballots = new List<RankedChoiceBallot>
+        {
+            new RankedChoiceBallot(new List<RankedChoiceVote>
+            {
+                new RankedChoiceVote(voterOne, candidateOne, 1),
+                new RankedChoiceVote(voterOne, candidateOne,  2),
+            }),
+        };
+        var candidates = new List<ICandidate>() { candidateOne };
+        
+        Assert.Throws<BallotsMustHaveDifferentCandidates>(() => new RankedChoiceElection(ballots, candidates));
+    }
 }

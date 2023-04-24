@@ -81,6 +81,17 @@ namespace Election.Objects
             this.EnsureBallotsVotesHaveDifferentRanks();
             this.EnsureRanksBetweenOneAndVotesLength();
             this.EnsureSameVoterInBallots();
+            this.EnsureDifferentCandidatesInBallots();
+        }
+
+        private void EnsureDifferentCandidatesInBallots()
+        {
+            foreach (var ballot in Ballots)
+            {
+                var candidatesList = ballot.Votes.Select(vote => vote.Candidate.Id).ToList();
+                var candidatesSet = new HashSet<int>(candidatesList);
+                if (candidatesSet.Count < candidatesList.Count) throw new BallotsMustHaveDifferentCandidates();
+            }
         }
 
         private void EnsureSameVoterInBallots()

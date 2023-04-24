@@ -22,7 +22,11 @@ namespace Election.Objects
             
             this.Ballots = ballots;
             this.Candidates = candidates;
+            
+            this.EnsureOneVotePerPerson();
         }
+
+        protected abstract void EnsureOneVotePerPerson();
 
         public abstract void CountVotes();
     }
@@ -32,7 +36,6 @@ namespace Election.Objects
         public SimpleElection(IEnumerable<SimpleBallot> ballots, IEnumerable<ICandidate> candidates)
             : base(ballots, candidates)
         {
-            this.EnsureOneVotePerPerson();
             this.EnsureCandidatesAreValid();
         }
 
@@ -47,7 +50,7 @@ namespace Election.Objects
             if (someCandidateIsInvalid) throw new InvalidCandidate();
         }
 
-        private void EnsureOneVotePerPerson()
+        protected override void EnsureOneVotePerPerson()
         {
             var votersListed = this.Ballots.SelectMany(ballot => ballot.Votes).Select(vote => vote.Voter.Id).ToList();
             var nonRepeatedVoters = new HashSet<int>(votersListed);
@@ -105,6 +108,13 @@ namespace Election.Objects
             {
                 throw new BallotsMustHaveSameVotesQuantity();
             }
+        }
+
+        protected override void EnsureOneVotePerPerson()
+        {
+            var votersList = Ballots.Select(ballot => ballot.Votes.First().Voter.Id).ToList();
+            var votersSet = new HashSet<int>(votersList);
+            if (votersSet.Count < votersList.Count) throw new PeopleCannotVoteMoreThanOnce();
         }
 
         public override void CountVotes()

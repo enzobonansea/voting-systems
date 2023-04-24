@@ -109,4 +109,25 @@ public class RankedChoiceElectionTest
         Assert.Throws<BallotsMustHaveRanksBetweenOneAndVotesLength>(() => new RankedChoiceElection(ballotsWithTooBigRank, candidates));
         Assert.Throws<BallotsMustHaveRanksBetweenOneAndVotesLength>(() => new RankedChoiceElection(ballotsWithTooLittleRank, candidates));
     }
+    
+    [Fact]
+    public void PeopleCannotVoteMoreThanOnce()
+    {
+        var voterOne = new SimpleVoter(1, "Voter one");
+        var candidateOne = new SimpleCandidate(1, "Candidate one");
+        var ballots = new List<RankedChoiceBallot>
+        {
+            new RankedChoiceBallot(new List<RankedChoiceVote>
+            {
+                new RankedChoiceVote(voterOne, candidateOne, 1),
+            }),
+            new RankedChoiceBallot(new List<RankedChoiceVote>
+            {
+                new RankedChoiceVote(voterOne, candidateOne, 1),
+            }),
+        };
+        var candidates = new List<ICandidate>() { candidateOne };
+        
+        Assert.Throws<PeopleCannotVoteMoreThanOnce>(() => new RankedChoiceElection(ballots, candidates));
+    }
 }

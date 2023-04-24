@@ -33,6 +33,18 @@ namespace Election.Objects
             : base(ballots, candidates)
         {
             this.EnsureOneVotePerPerson();
+            this.EnsureCandidatesAreValid();
+        }
+
+        private void EnsureCandidatesAreValid()
+        {
+            var candidatesIds = this.Candidates.Select(candidate => candidate.Id);
+            var someCandidateIsInvalid = this.Ballots
+                .SelectMany(ballot => ballot.Votes)
+                .Select(vote => vote.Candidate.Id)
+                .Any(candidateId => !candidatesIds.Contains(candidateId));
+
+            if (someCandidateIsInvalid) throw new InvalidCandidate();
         }
 
         private void EnsureOneVotePerPerson()

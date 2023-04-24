@@ -62,4 +62,18 @@ public class SimpleElectionTest
         
         Assert.Throws<PeopleCannotVoteMoreThanOnce>(() => new SimpleElection(invalidBallots, candidates));
     }
+
+    [Fact]
+    public void VotedCandidatesMustBeValid()
+    {
+        var voterOne = new SimpleVoter(1, "Voter one");
+        var candidateOne = new SimpleCandidate(1, "Candidate one");
+        var invalidBallots = new List<SimpleBallot>
+        {
+            new SimpleBallot(new SimpleVote(voterOne, new SimpleCandidate(2, "Candidate two"))),
+        };
+        var candidates = new List<ICandidate>() { candidateOne };
+        
+        Assert.Throws<InvalidCandidate>(() => new SimpleElection(invalidBallots, candidates));
+    }
 }

@@ -17,7 +17,7 @@ public class RankedChoiceBallotTest
             candidateOneVote,
             candidateTwoVote
         });
-        ballot.RemoveCandidate(candidateTwo);
+        ballot.Remove(candidateTwo);
         Assert.DoesNotContain(candidateTwoVote, ballot.Votes);
     }
     
@@ -37,7 +37,7 @@ public class RankedChoiceBallotTest
         {
             candidateOneVote, candidateTwoVote, candidateThreeVote, candidateFourVote
         });
-        ballot.RemoveCandidate(candidateTwo);
+        ballot.Remove(candidateTwo);
         Assert.Equal(1, ballot.Votes.First(vote => vote.Candidate == candidateOne).Rank);
         Assert.Equal(2, ballot.Votes.First(vote => vote.Candidate == candidateThree).Rank);
         Assert.Equal(3, ballot.Votes.First(vote => vote.Candidate == candidateFour).Rank);

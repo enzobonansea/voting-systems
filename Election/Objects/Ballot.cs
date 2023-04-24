@@ -17,7 +17,7 @@ namespace Election.Objects
         public IEnumerable<RankedChoiceVote> Votes { get; private set; }
         public RankedChoiceBallot(IEnumerable<RankedChoiceVote> rankedChoiceVotes) { this.Votes = rankedChoiceVotes; }
 
-        public void RemoveCandidate(ICandidate candidate)
+        public void Remove(ICandidate candidate)
         {
             var candidateVoteRank = this.Votes.First(vote => vote.Candidate == candidate).Rank;
             this.Votes = this.Votes.Where(vote => vote.Candidate != candidate);

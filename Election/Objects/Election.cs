@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Election.Extensions;
 using Election.Interfaces;
 using Election.Objects.Exceptions;
 
@@ -52,9 +53,10 @@ namespace Election.Objects
 
         protected override void EnsureOneVotePerPerson()
         {
-            var votersListed = this.Ballots.SelectMany(ballot => ballot.Votes).Select(vote => vote.Voter.Id).ToList();
-            var nonRepeatedVoters = new HashSet<int>(votersListed);
-            if (nonRepeatedVoters.Count < votersListed.Count) throw new PeopleCannotVoteMoreThanOnce();
+            if (Ballots.SelectMany(ballot => ballot.Votes).Select(vote => vote.Voter.Id).HasDuplicates())
+            {
+                throw new PeopleCannotVoteMoreThanOnce();
+            }
         }
 
         public override void CountVotes()
@@ -95,9 +97,10 @@ namespace Election.Objects
         {
             foreach (var ballot in Ballots)
             {
-                var candidatesList = ballot.Votes.Select(vote => vote.Candidate.Id).ToList();
-                var candidatesSet = new HashSet<int>(candidatesList);
-                if (candidatesSet.Count < candidatesList.Count) throw new BallotsMustHaveDifferentCandidates();
+                if (ballot.Votes.Select(vote => vote.Candidate.Id).HasDuplicates())
+                {
+                    throw new BallotsMustHaveDifferentCandidates();
+                }
             }
         }
 
@@ -126,9 +129,10 @@ namespace Election.Objects
         {
             foreach (var ballot in Ballots)
             {
-                var ranksList = ballot.Votes.Select(vote => vote.Rank).ToList();
-                var ranksSet = new HashSet<int>(ranksList);
-                if (ranksSet.Count < ranksList.Count) throw new BallotsVotesMustHaveDifferentRanks();
+                if (ballot.Votes.Select(vote => vote.Rank).HasDuplicates())
+                {
+                    throw new BallotsVotesMustHaveDifferentRanks();
+                }
             }
         }
 
@@ -143,9 +147,10 @@ namespace Election.Objects
 
         protected override void EnsureOneVotePerPerson()
         {
-            var votersList = Ballots.Select(ballot => ballot.Votes.First().Voter.Id).ToList();
-            var votersSet = new HashSet<int>(votersList);
-            if (votersSet.Count < votersList.Count) throw new PeopleCannotVoteMoreThanOnce();
+            if (Ballots.Select(ballot => ballot.Votes.First().Voter.Id).HasDuplicates())
+            {
+                throw new PeopleCannotVoteMoreThanOnce();
+            }
         }
 
         public override void CountVotes()

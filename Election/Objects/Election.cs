@@ -30,7 +30,7 @@ namespace Election.Objects
         
         private void EnsureCandidatesAreValid()
         {
-            var candidatesIds = this.Candidates.Select(candidate => candidate.Id);
+            var candidatesIds = this.Candidates.Select(candidate => candidate.Id).ToHashSet();
             var someCandidateIsInvalid = this.Ballots
                 .SelectMany(ballot => ballot.Votes)
                 .Select(vote => vote.Candidate.Id)

@@ -96,8 +96,6 @@ namespace Election.Objects
             this.EnsureSameVoterInBallots();
             this.EnsureDifferentCandidatesInBallots();
         }
-
-        public new ICandidate Winner => this.lastRound.Winner;
         
         public int GetFirstPreferenceVotes(ICandidate candidate)
         {
@@ -169,6 +167,7 @@ namespace Election.Objects
             this.lastRound = new RankedChoiceElectionRound(Ballots, Candidates);
             do this.lastRound.Next(); while (!this.lastRound.WonByAbsoluteMajority);
             this.Candidates = this.lastRound.Candidates;
+            this.Winner = this.lastRound.Winner;
         }
     }
 }

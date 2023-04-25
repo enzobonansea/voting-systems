@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Election.Interfaces;
@@ -65,7 +66,7 @@ namespace Election.Objects
                     ballot.Remove(this.Loser);
                 }
             }
-            
+
             this.CalculateWinnerAndLoser();
         }
     }

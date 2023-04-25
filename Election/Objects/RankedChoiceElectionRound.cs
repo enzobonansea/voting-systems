@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using Election.Interfaces;
@@ -9,9 +8,6 @@ namespace Election.Objects
     public class RankedChoiceElectionRound
     {
         private Dictionary<ICandidate, int> firstPreferenceVotesPerCandidate;
-        private ICandidate winner;
-        private ICandidate loser;
-        private bool wonByAbsoluteMajority;
 
         public RankedChoiceElectionRound(IEnumerable<RankedChoiceBallot> ballots, IEnumerable<ICandidate> candidates)
         {
@@ -30,15 +26,15 @@ namespace Election.Objects
                 .OrderByDescending(votesPerCandidate => votesPerCandidate.Value)
                 .ToList();
 
-            this.winner = firstPreferenceVotesPerCandidateOrdered.First().Key;
-            this.loser = firstPreferenceVotesPerCandidateOrdered.Last().Key;
-            this.wonByAbsoluteMajority =
+            this.Winner = firstPreferenceVotesPerCandidateOrdered.First().Key;
+            this.Loser = firstPreferenceVotesPerCandidateOrdered.Last().Key;
+            this.WonByAbsoluteMajority =
                 (firstPreferenceVotesPerCandidateOrdered.First().Value / (decimal)firstPreferenceVotes.Count()) > (decimal)0.5;
         }
 
-        public ICandidate Winner { get => this.winner; }
-        public ICandidate Loser { get => this.loser; }
-        public bool WonByAbsoluteMajority { get => wonByAbsoluteMajority; }
+        public ICandidate Winner { get; private set; }
+        public ICandidate Loser { get; private set; }
+        public bool WonByAbsoluteMajority { get; private set; }
         public IEnumerable<RankedChoiceBallot> Ballots { get; private set; }
         public IEnumerable<ICandidate> Candidates { get; private set; }
 

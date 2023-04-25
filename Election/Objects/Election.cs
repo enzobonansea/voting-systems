@@ -30,11 +30,11 @@ namespace Election.Objects
         
         private void EnsureCandidatesAreValid()
         {
-            var candidatesIds = this.Candidates.Select(candidate => candidate.Id).ToHashSet();
+            var candidates = this.Candidates.ToHashSet();
             var someCandidateIsInvalid = this.Ballots
                 .SelectMany(ballot => ballot.Votes)
-                .Select(vote => vote.Candidate.Id)
-                .Any(candidateId => !candidatesIds.Contains(candidateId));
+                .Select(vote => vote.Candidate)
+                .Any(candidate => !candidates.Contains(candidate));
 
             if (someCandidateIsInvalid) throw new InvalidCandidate();
         }
@@ -53,33 +53,38 @@ namespace Election.Objects
 
         protected override void EnsureOneVotePerPerson()
         {
-            if (Ballots.SelectMany(ballot => ballot.Votes).Select(vote => vote.Voter.Id).HasDuplicates())
+            if (Ballots.SelectMany(ballot => ballot.Votes).Select(vote => vote.Voter).HasDuplicates())
             {
                 throw new PeopleCannotVoteMoreThanOnce();
             }
         }
-
+        
+        /// <summary>
+        /// Count all votes
+        /// Running time complexity: O(C + B*V) where C = quantity of candidates, B = quantity of ballots,
+        /// V = quantity of votes per ballot
+        /// </summary>
         public override void CountVotes()
         {
-            var votesPerCandidate =  this.Candidates.ToDictionary(candidate => candidate.Id, _ => 0);
+            var votesPerCandidate =  this.Candidates.ToDictionary(candidate => candidate, _ => 0); // O(C)
 
-            foreach (var ballot in Ballots.SelectMany(ballot => ballot.Votes))
+            foreach (var ballot in Ballots.SelectMany(ballot => ballot.Votes)) // O(B * V)
             {
-                votesPerCandidate[ballot.Candidate.Id] += 1;
+                votesPerCandidate[ballot.Candidate] += 1; // O(1)
             }
 
-            var maximumVotes = -1;
-            var winnerId = -1;
-            foreach (var votesOfCandidate in votesPerCandidate)
+            var maximumVotes = int.MinValue; // O(1)
+            ICandidate winner = null; // O(1)
+            foreach (var votesOfCandidate in votesPerCandidate) // O(C)
             {
-                if (votesOfCandidate.Value > maximumVotes)
+                if (votesOfCandidate.Value > maximumVotes) // O(1)
                 {
-                    maximumVotes = votesOfCandidate.Value;
-                    winnerId = votesOfCandidate.Key;
+                    maximumVotes = votesOfCandidate.Value; // O(1)
+                    winner = votesOfCandidate.Key; // O(1)
                 }
             }
             
-            this.Winner = this.Candidates.First(candidate => candidate.Id == winnerId);
+            this.Winner = this.Candidates.First(candidate => candidate == winner); // O(C)
         }
     }
 
@@ -99,7 +104,7 @@ namespace Election.Objects
         {
             foreach (var ballot in Ballots)
             {
-                if (ballot.Votes.Select(vote => vote.Candidate.Id).HasDuplicates())
+                if (ballot.Votes.Select(vote => vote.Candidate).HasDuplicates())
                 {
                     throw new BallotsMustHaveDifferentCandidates();
                 }
@@ -110,8 +115,8 @@ namespace Election.Objects
         {
             foreach (var ballot in Ballots)
             {
-                var voterId = ballot.Votes.First().Voter.Id;
-                if (ballot.Votes.Skip(1).Select(vote => vote.Voter.Id).Any(otherVoterId => otherVoterId != voterId))
+                var voter = ballot.Votes.First().Voter;
+                if (ballot.Votes.Skip(1).Select(vote => vote.Voter).Any(otherVoter => otherVoter != voter))
                 {
                     throw new BallotsMustHaveSameVoter();
                 }
@@ -149,12 +154,18 @@ namespace Election.Objects
 
         protected override void EnsureOneVotePerPerson()
         {
-            if (Ballots.Select(ballot => ballot.Votes.First().Voter.Id).HasDuplicates())
+            if (Ballots.Select(ballot => ballot.Votes.First().Voter).HasDuplicates())
             {
                 throw new PeopleCannotVoteMoreThanOnce();
             }
         }
 
+        /// <summary>
+        /// Count all votes
+        /// Running time complexity: O(R*(C + B*V)) where C = quantity of candidates, B = quantity of ballots,
+        /// V = quantity of votes per ballot and R = quantity of rounds. R is in O(C), then time complexity is
+        /// O(C² + C*B*V)
+        /// </summary>
         public override void CountVotes()
         {
             var round = new RankedChoiceElectionRound(Ballots, Candidates);

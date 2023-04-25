@@ -16,20 +16,34 @@ namespace Election.Objects
             CalculateWinnerAndLoser();
         }
 
+        /// <summary>
+        /// Calculates winner and loser from ballots
+        /// Running time complexity: O(B*V + C) where B = quantity of ballots, C = quantity of candidates,
+        /// V = quantity of votes per ballot
+        /// </summary>
         private void CalculateWinnerAndLoser()
         {
-            var firstPreferenceVotes = Ballots.SelectMany(ballot => ballot.Votes).Where(vote => vote.Rank == 1).ToList();
-            this.firstPreferenceVotesPerCandidate = Candidates.ToDictionary(candidate => candidate, _ => 0);
-            foreach (var vote in firstPreferenceVotes) this.firstPreferenceVotesPerCandidate[vote.Candidate] += 1;
-
-            var firstPreferenceVotesPerCandidateOrdered = this.firstPreferenceVotesPerCandidate
-                .OrderByDescending(votesPerCandidate => votesPerCandidate.Value)
-                .ToList();
-
-            this.Winner = firstPreferenceVotesPerCandidateOrdered.First().Key;
-            this.Loser = firstPreferenceVotesPerCandidateOrdered.Last().Key;
-            this.WonByAbsoluteMajority =
-                (firstPreferenceVotesPerCandidateOrdered.First().Value / (decimal)firstPreferenceVotes.Count()) > (decimal)0.5;
+            var firstPreferenceVotes = Ballots
+                .SelectMany(ballot => ballot.Votes)
+                .Where(vote => vote.Rank == 1)
+                .ToList(); // O(B * V)
+            this.firstPreferenceVotesPerCandidate = Candidates.ToDictionary(candidate => candidate, _ => 0); // O(C)
+            foreach (var vote in firstPreferenceVotes) // O(B * V)
+            {
+                this.firstPreferenceVotesPerCandidate[vote.Candidate] += 1; // O(1)
+            }
+        
+            KeyValuePair<ICandidate, int> winner = new KeyValuePair<ICandidate, int>(null, int.MinValue); // O(1)
+            KeyValuePair<ICandidate, int> loser = new KeyValuePair<ICandidate, int>(null, int.MaxValue);  // O(1)
+            foreach (var voteOfCandidate in firstPreferenceVotesPerCandidate) // O(C)
+            {
+                if (voteOfCandidate.Value >= winner.Value) winner = voteOfCandidate; // O(1)
+                if (voteOfCandidate.Value <= loser.Value) loser = voteOfCandidate;   // O(1)
+            }
+        
+            this.Winner = winner.Key; // O(1)
+            this.Loser = loser.Key; // O(1)
+            this.WonByAbsoluteMajority = (winner.Value / (decimal)firstPreferenceVotes.Count()) > (decimal)0.5; // O(1)
         }
 
         public ICandidate Winner { get; private set; }
@@ -50,20 +64,25 @@ namespace Election.Objects
             }
         }
 
+        /// <summary>
+        /// Calculates next round.
+        /// Running time complexity: O(B*V + C) where B = quantity of ballots, C = quantity of candidates,
+        /// V = quantity of votes per ballot
+        /// </summary>
         public void Next()
         {
-            if (this.WonByAbsoluteMajority) return;
+            if (this.WonByAbsoluteMajority) return; // O(1)
 
-            this.Candidates = this.Candidates.Where(candidate => candidate != this.Loser).ToList();
-            foreach (var ballot in Ballots)
+            this.Candidates = this.Candidates.Where(candidate => candidate != this.Loser).ToList(); // O(C)
+            foreach (var ballot in Ballots) // O(B * V)
             {
-                if (ballot.Has(this.Loser))
+                if (ballot.Has(this.Loser)) // O(V)
                 {
-                    ballot.Remove(this.Loser);
+                    ballot.Remove(this.Loser); // O(V)
                 }
             }
 
-            this.CalculateWinnerAndLoser();
+            this.CalculateWinnerAndLoser(); // O(B*V + C)
         }
     }
 }

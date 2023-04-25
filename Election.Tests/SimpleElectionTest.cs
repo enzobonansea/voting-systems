@@ -108,4 +108,25 @@ public class SimpleElectionTest
         
         Assert.Equal(candidateOne, election.Winner);
     }
+    
+    [Fact]
+    public void ItMustThrowExceptionOnTie()
+    {
+        var voterOne = new SimpleVoter(1, "Voter one");
+        var voterTwo = new SimpleVoter(2, "Voter two");
+        var candidateOne = new SimpleCandidate(1, "Candidate one");
+        var candidateTwo = new SimpleCandidate(2, "Candidate two");
+        
+        var ballots = new List<SimpleBallot>
+        {
+            // Candidate one: 50%
+            new SimpleBallot(new SimpleVote(voterOne, candidateOne)),
+            // Candidate two: 50%
+            new SimpleBallot(new SimpleVote(voterTwo, candidateTwo)),
+        };
+
+        var election = new SimpleElection(ballots, new List<ICandidate>() { candidateOne, candidateTwo });
+        
+        Assert.Throws<SimpleElectionTie>(() => election.CountVotes());
+    }
 }

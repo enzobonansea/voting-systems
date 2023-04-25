@@ -83,6 +83,11 @@ namespace Election.Objects
                     winner = votesOfCandidate.Key; // O(1)
                 }
             }
+
+            if (votesPerCandidate.Count(voteOfCandidate => voteOfCandidate.Value == maximumVotes) > 1)
+            {
+                throw new SimpleElectionTie();
+            }
             
             this.Winner = this.Candidates.First(candidate => candidate == winner); // O(C)
         }

@@ -85,8 +85,6 @@ namespace Election.Objects
 
     public class RankedChoiceElection : Election<RankedChoiceBallot, RankedChoiceVote>
     {
-        private RankedChoiceElectionRound lastRound;
-        
         public RankedChoiceElection(IEnumerable<RankedChoiceBallot> ballots, IEnumerable<ICandidate> candidates)
             : base(ballots, candidates)
         {
@@ -95,11 +93,6 @@ namespace Election.Objects
             this.EnsureRanksBetweenOneAndVotesLength();
             this.EnsureSameVoterInBallots();
             this.EnsureDifferentCandidatesInBallots();
-        }
-        
-        public int GetFirstPreferenceVotes(ICandidate candidate)
-        {
-            return this.lastRound.GetFirstPreferenceVotes(candidate);
         }
 
         private void EnsureDifferentCandidatesInBallots()
@@ -164,10 +157,10 @@ namespace Election.Objects
 
         public override void CountVotes()
         {
-            this.lastRound = new RankedChoiceElectionRound(Ballots, Candidates);
-            do this.lastRound.Next(); while (!this.lastRound.WonByAbsoluteMajority);
-            this.Candidates = this.lastRound.Candidates;
-            this.Winner = this.lastRound.Winner;
+            var round = new RankedChoiceElectionRound(Ballots, Candidates);
+            do round.Next(); while (!round.WonByAbsoluteMajority);
+            this.Candidates = round.Candidates;
+            this.Winner = round.Winner;
         }
     }
 }
